@@ -392,6 +392,49 @@ offset_right = 344.0
 offset_bottom = 58.0
 text = "Fire"
 
+[node name="Leaderboard" type="Panel" parent="Camera2D/Control"]
+layout_mode = 0
+offset_left = -528.0
+offset_top = -289.0
+offset_right = 533.0
+offset_bottom = 283.0
+
+[node name="P1" type="Label" parent="Camera2D/Control/Leaderboard"]
+layout_mode = 0
+offset_left = 27.0
+offset_top = 100.0
+offset_right = 81.0
+offset_bottom = 139.0
+theme_override_colors/font_color = Color(1, 0.341176, 0.27451, 1)
+text = "P1"
+
+[node name="P2" type="Label" parent="Camera2D/Control/Leaderboard"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 185.0
+offset_right = 79.0
+offset_bottom = 224.0
+theme_override_colors/font_color = Color(0.431373, 0.611765, 1, 1)
+text = "P2"
+
+[node name="P3" type="Label" parent="Camera2D/Control/Leaderboard"]
+layout_mode = 0
+offset_left = 27.0
+offset_top = 270.0
+offset_right = 81.0
+offset_bottom = 309.0
+theme_override_colors/font_color = Color(0, 0.843137, 0, 1)
+text = "P3"
+
+[node name="P4" type="Label" parent="Camera2D/Control/Leaderboard"]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 362.0
+offset_right = 82.0
+offset_bottom = 401.0
+theme_override_colors/font_color = Color(0.878431, 0.741176, 0.0117647, 1)
+text = "P4"
+
 [connection signal="focus_entered" from="Camera2D/Control/Background/LineEdit" to="Camera2D/Control/Background/LineEdit" method="_on_focus_entered"]
 [connection signal="focus_exited" from="Camera2D/Control/Background/LineEdit" to="Camera2D/Control/Background/LineEdit" method="_on_focus_exited"]
 [connection signal="text_changed" from="Camera2D/Control/Background/LineEdit" to="Camera2D/Control/Background/LineEdit" method="_on_text_changed"]
