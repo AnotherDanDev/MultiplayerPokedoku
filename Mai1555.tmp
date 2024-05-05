@@ -1,0 +1,494 @@
+[gd_scene load_steps=13 format=3 uid="uid://b5px41ehhvxs"]
+
+[ext_resource type="Script" path="res://Scripts/PokemonSearch.gd" id="2_l0lkc"]
+[ext_resource type="Texture2D" uid="uid://dm676frcw4s2n" path="res://Sprites/0001.png" id="3_012ds"]
+[ext_resource type="Texture2D" uid="uid://gqv4gonb8wj" path="res://Sprites/0002.png" id="4_ys8ru"]
+[ext_resource type="Texture2D" uid="uid://bxgt1fnai2xvc" path="res://Sprites/0003.png" id="5_nry7j"]
+[ext_resource type="Script" path="res://CellControl.gd" id="5_rgg8x"]
+[ext_resource type="Script" path="res://Scripts/PokeButton.gd" id="6_8fya6"]
+[ext_resource type="Script" path="res://Scripts/Category.gd" id="7_a23uv"]
+
+[sub_resource type="Theme" id="Theme_vga27"]
+
+[sub_resource type="GDScript" id="GDScript_a2dpt"]
+script/source = "extends Control
+
+var categories : Dictionary
+var selectedCats = []
+func _ready():
+	var children = get_children()
+	for c in children:
+		categories[c.name] = c
+	select_categories_new()
+
+
+func select_categories_new():
+	var cat = PokemonData.random_category(true)
+	var pokemon = PokemonData.get_valid_pokemon([[cat,answer]])
+
+
+func select_categories():
+	var random = RandomNumberGenerator.new()
+	var topAnswers = []
+	var topCats = []
+	var sideCats = []
+	for x in range(0,3):
+		while true:
+			var cat = PokemonData.random_category(true)
+			var answer = PokemonData.random_category_answer(cat)
+			var pokemon = PokemonData.get_valid_pokemon([[cat,answer]])
+			if len(pokemon) < 3:
+				assert(\"not enough pokemon in first category\")
+			if answer not in topAnswers:
+				topAnswers.append(answer)
+				topCats.append(cat)
+				break
+		categories[str(x+1)].change_category(topAnswers[x])
+	var selectedPokemon = []
+	
+	var checkPassed = false
+	while checkPassed == false:
+		selectedPokemon.clear()
+		var Pokemon1A = PokemonData.random_pokemon([[topCats[0],topAnswers[0]]],[\"*\"], 1)
+		var newCat = PokemonData.random_category(false, [topCats[0]]) #Okayable null?
+		var newAnswer = Pokemon1A[newCat]
+		selectedPokemon.append(Pokemon1A)
+		if Pokemon1A[newCat] == topAnswers[0][0]:
+			continue
+		if newAnswer == null:
+			continue
+		print(\"Check 1 passed\")
+		for x in range(1,3):
+			var flagPokemon = PokemonData.random_pokemon([[topCats[x],topAnswers[x]],[newCat,newAnswer]],[\"*\"], 1)
+			if flagPokemon == null:
+				break
+			else:
+				selectedPokemon.append(flagPokemon)
+				print(\"Check %s passed\" % [str(x)])
+		if len(selectedPokemon) == 3:
+			break
+	print(selectedPokemon)
+
+	#for x in range(1,4):
+	#	var catAnswers = PokemonData.currentCategoryAnswers[topCats[x-1]]
+	#	var answer = catAnswers[random.randi_range(0,len(catAnswers))]
+	#	categories[str(x)].change_category(answer)
+	#for x in range(65,68):
+	#	categories[char(x)].change_category(sideCats[x-65])
+"
+
+[sub_resource type="Animation" id="Animation_07pc7"]
+resource_name = "Fade In"
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate:r")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(1, -0.25, 0, 0.25, 0, 1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 1)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:modulate:g")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(1, -0.25, 0, 0.25, 0, 1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 1)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:modulate:b")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(1, -0.25, 0, 0.25, 0, 1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 1)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath(".:modulate:a")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 1)
+}
+
+[sub_resource type="Animation" id="Animation_rrmbn"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate:r")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:modulate:g")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:modulate:b")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath(".:modulate:a")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_px07a"]
+_data = {
+"Fade In": SubResource("Animation_07pc7"),
+"RESET": SubResource("Animation_rrmbn")
+}
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(576, 328)
+
+[node name="Control" type="Control" parent="Camera2D"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+size_flags_stretch_ratio = 4.23
+metadata/_edit_use_anchors_ = true
+
+[node name="Background" type="Panel" parent="Camera2D/Control"]
+layout_mode = 0
+offset_left = -224.0
+offset_top = -176.0
+offset_right = 224.0
+offset_bottom = 208.0
+
+[node name="LineEdit" type="LineEdit" parent="Camera2D/Control/Background"]
+layout_mode = 0
+offset_left = -64.0
+offset_top = -80.0
+offset_right = 512.0
+offset_bottom = -16.0
+theme_override_font_sizes/font_size = 30
+placeholder_text = "Pokemon Search..."
+alignment = 1
+max_length = 20
+script = ExtResource("2_l0lkc")
+
+[node name="ItemList" type="ItemList" parent="Camera2D/Control/Background/LineEdit"]
+visible = false
+top_level = true
+layout_mode = 0
+offset_left = 312.0
+offset_top = 144.0
+offset_right = 848.0
+offset_bottom = 280.0
+item_count = 3
+icon_scale = 0.2
+item_0/text = "Bulbasaur"
+item_0/icon = ExtResource("3_012ds")
+item_1/text = "Ivysaur"
+item_1/icon = ExtResource("4_ys8ru")
+item_2/text = "Venasuar"
+item_2/icon = ExtResource("5_nry7j")
+
+[node name="CellController" type="Control" parent="Camera2D/Control/Background" node_paths=PackedStringArray("pokeSearch")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_rgg8x")
+pokeSearch = NodePath("../LineEdit")
+
+[node name="GridContainer" type="GridContainer" parent="Camera2D/Control/Background/CellController"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = -112.0
+offset_right = 136.0
+offset_bottom = 144.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_vga27")
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="1A" type="Button" parent="Camera2D/Control/Background/CellController/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("6_8fya6")
+
+[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/CellController/GridContainer/1A"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 2
+
+[node name="1B" type="Button" parent="Camera2D/Control/Background/CellController/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("6_8fya6")
+
+[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/CellController/GridContainer/1B"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 2
+
+[node name="1C" type="Button" parent="Camera2D/Control/Background/CellController/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("6_8fya6")
+
+[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/CellController/GridContainer/1C"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 2
+
+[node name="2A" type="Button" parent="Camera2D/Control/Background/CellController/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("6_8fya6")
+
+[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/CellController/GridContainer/2A"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 2
+
+[node name="2B" type="Button" parent="Camera2D/Control/Background/CellController/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("6_8fya6")
+
+[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/CellController/GridContainer/2B"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 2
+
+[node name="2C" type="Button" parent="Camera2D/Control/Background/CellController/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("6_8fya6")
+
+[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/CellController/GridContainer/2C"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 2
+
+[node name="3A" type="Button" parent="Camera2D/Control/Background/CellController/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("6_8fya6")
+
+[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/CellController/GridContainer/3A"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 2
+
+[node name="3B" type="Button" parent="Camera2D/Control/Background/CellController/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("6_8fya6")
+
+[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/CellController/GridContainer/3B"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 2
+
+[node name="3C" type="Button" parent="Camera2D/Control/Background/CellController/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("6_8fya6")
+
+[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/CellController/GridContainer/3C"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 2
+
+[node name="CategoryController" type="Control" parent="Camera2D/Control/Background"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = SubResource("GDScript_a2dpt")
+
+[node name="1" type="Label" parent="Camera2D/Control/Background/CategoryController"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 104.0
+offset_right = 80.0
+offset_bottom = 130.0
+text = "Fire"
+script = ExtResource("7_a23uv")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/Control/Background/CategoryController/1"]
+libraries = {
+"": SubResource("AnimationLibrary_px07a")
+}
+
+[node name="2" type="Label" parent="Camera2D/Control/Background/CategoryController"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 192.0
+offset_right = 80.0
+offset_bottom = 218.0
+text = "Fire"
+script = ExtResource("7_a23uv")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/Control/Background/CategoryController/2"]
+libraries = {
+"": SubResource("AnimationLibrary_px07a")
+}
+
+[node name="3" type="Label" parent="Camera2D/Control/Background/CategoryController"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 288.0
+offset_right = 80.0
+offset_bottom = 314.0
+text = "Fire"
+script = ExtResource("7_a23uv")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/Control/Background/CategoryController/3"]
+libraries = {
+"": SubResource("AnimationLibrary_px07a")
+}
+
+[node name="A" type="Label" parent="Camera2D/Control/Background/CategoryController"]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 32.0
+offset_right = 160.0
+offset_bottom = 58.0
+text = "Fire"
+script = ExtResource("7_a23uv")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/Control/Background/CategoryController/A"]
+libraries = {
+"": SubResource("AnimationLibrary_px07a")
+}
+
+[node name="B" type="Label" parent="Camera2D/Control/Background/CategoryController"]
+layout_mode = 0
+offset_left = 216.0
+offset_top = 32.0
+offset_right = 256.0
+offset_bottom = 58.0
+text = "Fire"
+script = ExtResource("7_a23uv")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/Control/Background/CategoryController/B"]
+libraries = {
+"": SubResource("AnimationLibrary_px07a")
+}
+
+[node name="C" type="Label" parent="Camera2D/Control/Background/CategoryController"]
+layout_mode = 0
+offset_left = 304.0
+offset_top = 32.0
+offset_right = 344.0
+offset_bottom = 58.0
+text = "Fire"
+script = ExtResource("7_a23uv")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/Control/Background/CategoryController/C"]
+libraries = {
+"": SubResource("AnimationLibrary_px07a")
+}
+
+[connection signal="focus_entered" from="Camera2D/Control/Background/LineEdit" to="Camera2D/Control/Background/LineEdit" method="_on_focus_entered"]
+[connection signal="focus_exited" from="Camera2D/Control/Background/LineEdit" to="Camera2D/Control/Background/LineEdit" method="_on_focus_exited"]
+[connection signal="text_changed" from="Camera2D/Control/Background/LineEdit" to="Camera2D/Control/Background/LineEdit" method="_on_text_changed"]
+[connection signal="item_activated" from="Camera2D/Control/Background/LineEdit/ItemList" to="Camera2D/Control/Background/LineEdit" method="_on_item_list_item_activated"]
+[connection signal="item_clicked" from="Camera2D/Control/Background/LineEdit/ItemList" to="Camera2D/Control/Background/LineEdit" method="_on_item_list_item_clicked"]
+[connection signal="pressed" from="Camera2D/Control/Background/CellController/GridContainer/1A" to="Camera2D/Control/Background/CellController/GridContainer/1A" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/Control/Background/CellController/GridContainer/1B" to="Camera2D/Control/Background/CellController/GridContainer/1B" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/Control/Background/CellController/GridContainer/1C" to="Camera2D/Control/Background/CellController/GridContainer/1C" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/Control/Background/CellController/GridContainer/2A" to="Camera2D/Control/Background/CellController/GridContainer/2A" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/Control/Background/CellController/GridContainer/2B" to="Camera2D/Control/Background/CellController/GridContainer/2B" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/Control/Background/CellController/GridContainer/2C" to="Camera2D/Control/Background/CellController/GridContainer/2C" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/Control/Background/CellController/GridContainer/3A" to="Camera2D/Control/Background/CellController/GridContainer/3A" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/Control/Background/CellController/GridContainer/3B" to="Camera2D/Control/Background/CellController/GridContainer/3B" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/Control/Background/CellController/GridContainer/3C" to="Camera2D/Control/Background/CellController/GridContainer/3C" method="_on_pressed"]

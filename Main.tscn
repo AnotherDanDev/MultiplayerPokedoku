@@ -1,15 +1,61 @@
-[gd_scene load_steps=13 format=3 uid="uid://b5px41ehhvxs"]
+[gd_scene load_steps=26 format=3 uid="uid://b5px41ehhvxs"]
 
-[ext_resource type="Script" path="res://GoogleSheetsAPI.gd" id="1_55sts"]
-[ext_resource type="Script" path="res://PokemonSearch.gd" id="2_l0lkc"]
+[ext_resource type="Script" path="res://Puzzle.gd" id="1_sw5u6"]
+[ext_resource type="Script" path="res://PlayerControl.gd" id="1_y714h"]
+[ext_resource type="Script" path="res://Scripts/PokemonSearch.gd" id="2_l0lkc"]
 [ext_resource type="Texture2D" uid="uid://dm676frcw4s2n" path="res://Sprites/0001.png" id="3_012ds"]
 [ext_resource type="Texture2D" uid="uid://gqv4gonb8wj" path="res://Sprites/0002.png" id="4_ys8ru"]
 [ext_resource type="Texture2D" uid="uid://bxgt1fnai2xvc" path="res://Sprites/0003.png" id="5_nry7j"]
-[ext_resource type="Script" path="res://PokeButton.gd" id="6_8fya6"]
-[ext_resource type="Script" path="res://Categories.gd" id="7_76plg"]
-[ext_resource type="Script" path="res://Category.gd" id="7_a23uv"]
+[ext_resource type="Script" path="res://CellControl.gd" id="5_rgg8x"]
+[ext_resource type="Script" path="res://Scripts/PokeButton.gd" id="6_8fya6"]
+[ext_resource type="Script" path="res://Scripts/Category.gd" id="7_a23uv"]
+[ext_resource type="Texture2D" uid="uid://bjt48cedxjmuy" path="res://Sprites/refresh.png" id="7_rtfys"]
+[ext_resource type="Script" path="res://OtherPlayers.gd" id="11_ryxbl"]
+[ext_resource type="Script" path="res://TimerStart.gd" id="12_tb8e1"]
 
 [sub_resource type="Theme" id="Theme_vga27"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ctimc"]
+bg_color = Color(0.133333, 0.133333, 0.133333, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="GDScript" id="GDScript_a2dpt"]
+script/source = "extends Control
+
+var categories : Dictionary
+var topCategories
+var sideCategories
+func _ready():
+	var children = get_children()
+	for c in children:
+		categories[c.name] = c
+	var cats = PokemonData.select_categories()
+	topCategories = cats[0]
+	sideCategories = cats[1]
+	PokemonData.verify_categories(topCategories,sideCategories)
+	update_categories()
+	
+func update_categories():
+	for x in range(65,68):
+		categories[char(x)].change_category(topCategories[x-65].target)
+	for x in range(1,4):
+		categories[str(x)].change_category(sideCategories[x-1].target)
+
+
+
+
+
+
+func _on_texture_button_pressed():
+	var cats = PokemonData.select_categories()
+	topCategories = cats[0]
+	sideCategories = cats[1]
+	PokemonData.verify_categories(topCategories,sideCategories)
+	update_categories()
+"
 
 [sub_resource type="Animation" id="Animation_07pc7"]
 resource_name = "Fade In"
@@ -111,15 +157,106 @@ _data = {
 "RESET": SubResource("Animation_rrmbn")
 }
 
-[node name="Node2D" type="Node2D"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u6tl8"]
+bg_color = Color(0.180392, 0.180392, 0.180392, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
-[node name="GoogleSheetsAPI" type="Node2D" parent="."]
-script = ExtResource("1_55sts")
+[sub_resource type="LabelSettings" id="LabelSettings_nif6e"]
+font_size = 20
+
+[sub_resource type="Animation" id="Animation_kyyfl"]
+resource_name = "LoadIn"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_ivjjc"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_dms6b"]
+_data = {
+"LoadIn": SubResource("Animation_kyyfl"),
+"RESET": SubResource("Animation_ivjjc")
+}
+
+[sub_resource type="Animation" id="Animation_euxaa"]
+resource_name = "Add Players"
+length = 2.0
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("VBoxContainer")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.5, 1, 1.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"values": [{
+"args": [],
+"method": &"add_player"
+}, {
+"args": [],
+"method": &"add_player"
+}, {
+"args": [],
+"method": &"add_player"
+}]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Timer")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(2),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"start_timer"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_8qjgy"]
+_data = {
+"Add Players": SubResource("Animation_euxaa")
+}
+
+[node name="Node2D" type="Node2D"]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(576, 328)
 
-[node name="Control" type="Control" parent="Camera2D"]
+[node name="PlayerControl" type="Control" parent="Camera2D"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -129,16 +266,20 @@ grow_vertical = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 size_flags_stretch_ratio = 4.23
+script = ExtResource("1_y714h")
 metadata/_edit_use_anchors_ = true
 
-[node name="Background" type="Panel" parent="Camera2D/Control"]
+[node name="Puzzle" type="Panel" parent="Camera2D/PlayerControl"]
+custom_minimum_size = Vector2(448, 384)
 layout_mode = 0
-offset_left = -224.0
-offset_top = -176.0
-offset_right = 224.0
-offset_bottom = 208.0
+offset_left = -403.0
+offset_top = -171.0
+offset_right = 45.0
+offset_bottom = 213.0
+script = ExtResource("1_sw5u6")
 
-[node name="LineEdit" type="LineEdit" parent="Camera2D/Control/Background"]
+[node name="LineEdit" type="LineEdit" parent="Camera2D/PlayerControl/Puzzle" node_paths=PackedStringArray("cellController")]
+visible = false
 layout_mode = 0
 offset_left = -64.0
 offset_top = -80.0
@@ -149,15 +290,16 @@ placeholder_text = "Pokemon Search..."
 alignment = 1
 max_length = 20
 script = ExtResource("2_l0lkc")
+cellController = NodePath("../CellController")
 
-[node name="ItemList" type="ItemList" parent="Camera2D/Control/Background/LineEdit"]
+[node name="ItemList" type="ItemList" parent="Camera2D/PlayerControl/Puzzle/LineEdit"]
 visible = false
 top_level = true
 layout_mode = 0
-offset_left = 312.0
-offset_top = 144.0
-offset_right = 848.0
-offset_bottom = 280.0
+offset_left = 126.0
+offset_top = 149.0
+offset_right = 662.0
+offset_bottom = 285.0
 item_count = 3
 icon_scale = 0.2
 item_0/text = "Bulbasaur"
@@ -167,15 +309,19 @@ item_1/icon = ExtResource("4_ys8ru")
 item_2/text = "Venasuar"
 item_2/icon = ExtResource("5_nry7j")
 
-[node name="Control" type="Control" parent="Camera2D/Control/Background"]
+[node name="CellController" type="Control" parent="Camera2D/PlayerControl/Puzzle" node_paths=PackedStringArray("pokeSearch", "categoryController")]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("5_rgg8x")
+pokeSearch = NodePath("../LineEdit")
+categoryController = NodePath("../CategoryController")
+metadata/_edit_lock_ = true
 
-[node name="GridContainer" type="GridContainer" parent="Camera2D/Control/Background/Control"]
+[node name="GridContainer" type="GridContainer" parent="Camera2D/PlayerControl/Puzzle/CellController"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -193,13 +339,12 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 3
 
-[node name="Button" type="Button" parent="Camera2D/Control/Background/Control/GridContainer" node_paths=PackedStringArray("pokeSearch")]
+[node name="1A" type="Button" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 script = ExtResource("6_8fya6")
-pokeSearch = NodePath("../../../LineEdit")
 
-[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/Control/GridContainer/Button"]
+[node name="texture" type="TextureRect" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/1A"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -208,13 +353,12 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 2
 
-[node name="Button2" type="Button" parent="Camera2D/Control/Background/Control/GridContainer" node_paths=PackedStringArray("pokeSearch")]
+[node name="1B" type="Button" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 script = ExtResource("6_8fya6")
-pokeSearch = NodePath("../../../LineEdit")
 
-[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/Control/GridContainer/Button2"]
+[node name="texture" type="TextureRect" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/1B"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -223,13 +367,12 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 2
 
-[node name="Button3" type="Button" parent="Camera2D/Control/Background/Control/GridContainer" node_paths=PackedStringArray("pokeSearch")]
+[node name="1C" type="Button" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 script = ExtResource("6_8fya6")
-pokeSearch = NodePath("../../../LineEdit")
 
-[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/Control/GridContainer/Button3"]
+[node name="texture" type="TextureRect" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/1C"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -238,13 +381,12 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 2
 
-[node name="Button4" type="Button" parent="Camera2D/Control/Background/Control/GridContainer" node_paths=PackedStringArray("pokeSearch")]
+[node name="2A" type="Button" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 script = ExtResource("6_8fya6")
-pokeSearch = NodePath("../../../LineEdit")
 
-[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/Control/GridContainer/Button4"]
+[node name="texture" type="TextureRect" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/2A"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -253,13 +395,12 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 2
 
-[node name="Button5" type="Button" parent="Camera2D/Control/Background/Control/GridContainer" node_paths=PackedStringArray("pokeSearch")]
+[node name="2B" type="Button" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 script = ExtResource("6_8fya6")
-pokeSearch = NodePath("../../../LineEdit")
 
-[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/Control/GridContainer/Button5"]
+[node name="texture" type="TextureRect" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/2B"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -268,13 +409,12 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 2
 
-[node name="Button6" type="Button" parent="Camera2D/Control/Background/Control/GridContainer" node_paths=PackedStringArray("pokeSearch")]
+[node name="2C" type="Button" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 script = ExtResource("6_8fya6")
-pokeSearch = NodePath("../../../LineEdit")
 
-[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/Control/GridContainer/Button6"]
+[node name="texture" type="TextureRect" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/2C"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -283,13 +423,12 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 2
 
-[node name="Button7" type="Button" parent="Camera2D/Control/Background/Control/GridContainer" node_paths=PackedStringArray("pokeSearch")]
+[node name="3A" type="Button" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 script = ExtResource("6_8fya6")
-pokeSearch = NodePath("../../../LineEdit")
 
-[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/Control/GridContainer/Button7"]
+[node name="texture" type="TextureRect" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/3A"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -298,13 +437,12 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 2
 
-[node name="Button8" type="Button" parent="Camera2D/Control/Background/Control/GridContainer" node_paths=PackedStringArray("pokeSearch")]
+[node name="3B" type="Button" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 script = ExtResource("6_8fya6")
-pokeSearch = NodePath("../../../LineEdit")
 
-[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/Control/GridContainer/Button8"]
+[node name="texture" type="TextureRect" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/3B"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -313,13 +451,12 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 2
 
-[node name="Button9" type="Button" parent="Camera2D/Control/Background/Control/GridContainer" node_paths=PackedStringArray("pokeSearch")]
+[node name="3C" type="Button" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 script = ExtResource("6_8fya6")
-pokeSearch = NodePath("../../../LineEdit")
 
-[node name="texture" type="TextureRect" parent="Camera2D/Control/Background/Control/GridContainer/Button9"]
+[node name="texture" type="TextureRect" parent="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/3C"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -328,7 +465,33 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 2
 
-[node name="Categories" type="Control" parent="Camera2D/Control/Background"]
+[node name="TextureButton" type="TextureButton" parent="Camera2D/PlayerControl/Puzzle/CellController"]
+layout_mode = 0
+offset_left = 405.0
+offset_top = 344.0
+offset_right = 433.0
+offset_bottom = 372.0
+texture_normal = ExtResource("7_rtfys")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="Panel" type="Panel" parent="Camera2D/PlayerControl/Puzzle/CellController/TextureButton"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ctimc")
+metadata/_edit_lock_ = true
+
+[node name="CategoryController" type="Control" parent="Camera2D/PlayerControl/Puzzle"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -336,9 +499,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-script = ExtResource("7_76plg")
+script = SubResource("GDScript_a2dpt")
+metadata/_edit_lock_ = true
 
-[node name="1" type="Label" parent="Camera2D/Control/Background/Categories"]
+[node name="1" type="Label" parent="Camera2D/PlayerControl/Puzzle/CategoryController"]
 layout_mode = 0
 offset_left = 40.0
 offset_top = 104.0
@@ -347,61 +511,151 @@ offset_bottom = 130.0
 text = "Fire"
 script = ExtResource("7_a23uv")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/Control/Background/Categories/1"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/PlayerControl/Puzzle/CategoryController/1"]
 libraries = {
 "": SubResource("AnimationLibrary_px07a")
 }
 
-[node name="2" type="Label" parent="Camera2D/Control/Background/Categories"]
+[node name="2" type="Label" parent="Camera2D/PlayerControl/Puzzle/CategoryController"]
 layout_mode = 0
 offset_left = 40.0
 offset_top = 192.0
 offset_right = 80.0
 offset_bottom = 218.0
 text = "Fire"
+script = ExtResource("7_a23uv")
 
-[node name="3" type="Label" parent="Camera2D/Control/Background/Categories"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/PlayerControl/Puzzle/CategoryController/2"]
+libraries = {
+"": SubResource("AnimationLibrary_px07a")
+}
+
+[node name="3" type="Label" parent="Camera2D/PlayerControl/Puzzle/CategoryController"]
 layout_mode = 0
 offset_left = 40.0
 offset_top = 288.0
 offset_right = 80.0
 offset_bottom = 314.0
 text = "Fire"
+script = ExtResource("7_a23uv")
 
-[node name="A" type="Label" parent="Camera2D/Control/Background/Categories"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/PlayerControl/Puzzle/CategoryController/3"]
+libraries = {
+"": SubResource("AnimationLibrary_px07a")
+}
+
+[node name="A" type="Label" parent="Camera2D/PlayerControl/Puzzle/CategoryController"]
 layout_mode = 0
 offset_left = 120.0
 offset_top = 32.0
 offset_right = 160.0
 offset_bottom = 58.0
 text = "Fire"
+script = ExtResource("7_a23uv")
 
-[node name="B" type="Label" parent="Camera2D/Control/Background/Categories"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/PlayerControl/Puzzle/CategoryController/A"]
+libraries = {
+"": SubResource("AnimationLibrary_px07a")
+}
+
+[node name="B" type="Label" parent="Camera2D/PlayerControl/Puzzle/CategoryController"]
 layout_mode = 0
 offset_left = 216.0
 offset_top = 32.0
 offset_right = 256.0
 offset_bottom = 58.0
 text = "Fire"
+script = ExtResource("7_a23uv")
 
-[node name="C" type="Label" parent="Camera2D/Control/Background/Categories"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/PlayerControl/Puzzle/CategoryController/B"]
+libraries = {
+"": SubResource("AnimationLibrary_px07a")
+}
+
+[node name="C" type="Label" parent="Camera2D/PlayerControl/Puzzle/CategoryController"]
 layout_mode = 0
 offset_left = 304.0
 offset_top = 32.0
 offset_right = 344.0
 offset_bottom = 58.0
 text = "Fire"
+script = ExtResource("7_a23uv")
 
-[connection signal="focus_entered" from="Camera2D/Control/Background/LineEdit" to="Camera2D/Control/Background/LineEdit" method="_on_focus_entered"]
-[connection signal="focus_exited" from="Camera2D/Control/Background/LineEdit" to="Camera2D/Control/Background/LineEdit" method="_on_focus_exited"]
-[connection signal="text_changed" from="Camera2D/Control/Background/LineEdit" to="Camera2D/Control/Background/LineEdit" method="_on_text_changed"]
-[connection signal="item_activated" from="Camera2D/Control/Background/LineEdit/ItemList" to="Camera2D/Control/Background/LineEdit" method="_on_item_list_item_activated"]
-[connection signal="pressed" from="Camera2D/Control/Background/Control/GridContainer/Button" to="Camera2D/Control/Background/Control/GridContainer/Button" method="_on_pressed"]
-[connection signal="pressed" from="Camera2D/Control/Background/Control/GridContainer/Button2" to="Camera2D/Control/Background/Control/GridContainer/Button2" method="_on_pressed"]
-[connection signal="pressed" from="Camera2D/Control/Background/Control/GridContainer/Button3" to="Camera2D/Control/Background/Control/GridContainer/Button3" method="_on_pressed"]
-[connection signal="pressed" from="Camera2D/Control/Background/Control/GridContainer/Button4" to="Camera2D/Control/Background/Control/GridContainer/Button4" method="_on_pressed"]
-[connection signal="pressed" from="Camera2D/Control/Background/Control/GridContainer/Button5" to="Camera2D/Control/Background/Control/GridContainer/Button5" method="_on_pressed"]
-[connection signal="pressed" from="Camera2D/Control/Background/Control/GridContainer/Button6" to="Camera2D/Control/Background/Control/GridContainer/Button6" method="_on_pressed"]
-[connection signal="pressed" from="Camera2D/Control/Background/Control/GridContainer/Button7" to="Camera2D/Control/Background/Control/GridContainer/Button7" method="_on_pressed"]
-[connection signal="pressed" from="Camera2D/Control/Background/Control/GridContainer/Button8" to="Camera2D/Control/Background/Control/GridContainer/Button8" method="_on_pressed"]
-[connection signal="pressed" from="Camera2D/Control/Background/Control/GridContainer/Button9" to="Camera2D/Control/Background/Control/GridContainer/Button9" method="_on_pressed"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/PlayerControl/Puzzle/CategoryController/C"]
+libraries = {
+"": SubResource("AnimationLibrary_px07a")
+}
+
+[node name="Player Profile" type="TextureRect" parent="Camera2D/PlayerControl/Puzzle"]
+layout_mode = 0
+offset_left = -86.0
+offset_right = -6.0
+offset_bottom = 78.0
+expand_mode = 2
+
+[node name="Panel" type="Panel" parent="Camera2D/PlayerControl/Puzzle/Player Profile"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_u6tl8")
+metadata/_edit_lock_ = true
+
+[node name="PlayerName" type="Label" parent="Camera2D/PlayerControl/Puzzle"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -62.0
+offset_top = -28.0
+offset_right = 62.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Player Name"
+label_settings = SubResource("LabelSettings_nif6e")
+horizontal_alignment = 1
+
+[node name="LoadIn" type="AnimationPlayer" parent="Camera2D/PlayerControl/Puzzle"]
+libraries = {
+"": SubResource("AnimationLibrary_dms6b")
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Camera2D/PlayerControl"]
+layout_mode = 0
+offset_left = 251.0
+offset_top = -296.0
+offset_right = 291.0
+offset_bottom = -256.0
+script = ExtResource("11_ryxbl")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D/PlayerControl"]
+libraries = {
+"": SubResource("AnimationLibrary_8qjgy")
+}
+
+[node name="Timer" type="Timer" parent="Camera2D/PlayerControl"]
+wait_time = 20.0
+script = ExtResource("12_tb8e1")
+
+[connection signal="focus_entered" from="Camera2D/PlayerControl/Puzzle/LineEdit" to="Camera2D/PlayerControl/Puzzle/LineEdit" method="_on_focus_entered"]
+[connection signal="focus_exited" from="Camera2D/PlayerControl/Puzzle/LineEdit" to="Camera2D/PlayerControl/Puzzle/LineEdit" method="_on_focus_exited"]
+[connection signal="text_changed" from="Camera2D/PlayerControl/Puzzle/LineEdit" to="Camera2D/PlayerControl/Puzzle/LineEdit" method="_on_text_changed"]
+[connection signal="item_activated" from="Camera2D/PlayerControl/Puzzle/LineEdit/ItemList" to="Camera2D/PlayerControl/Puzzle/LineEdit" method="_on_item_list_item_activated"]
+[connection signal="item_clicked" from="Camera2D/PlayerControl/Puzzle/LineEdit/ItemList" to="Camera2D/PlayerControl/Puzzle/LineEdit" method="_on_item_list_item_clicked"]
+[connection signal="pressed" from="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/1A" to="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/1A" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/1B" to="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/1B" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/1C" to="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/1C" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/2A" to="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/2A" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/2B" to="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/2B" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/2C" to="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/2C" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/3A" to="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/3A" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/3B" to="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/3B" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/3C" to="Camera2D/PlayerControl/Puzzle/CellController/GridContainer/3C" method="_on_pressed"]
+[connection signal="pressed" from="Camera2D/PlayerControl/Puzzle/CellController/TextureButton" to="Camera2D/PlayerControl/Puzzle/CellController" method="_on_texture_button_pressed"]
+[connection signal="pressed" from="Camera2D/PlayerControl/Puzzle/CellController/TextureButton" to="Camera2D/PlayerControl/Puzzle/CategoryController" method="_on_texture_button_pressed"]
+[connection signal="timeout" from="Camera2D/PlayerControl/Timer" to="Camera2D/PlayerControl" method="_on_timer_timeout"]
