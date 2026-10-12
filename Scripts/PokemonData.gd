@@ -210,7 +210,7 @@ func weighted_choice(answers:Array):
 		if rand < s[1]:
 			return s
 		rand -= s[1]
-	assert("Fucked up weighted choice.")
+	assert("Messed up weighted choice.")
 
 
 class Category:
